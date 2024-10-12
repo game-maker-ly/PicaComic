@@ -52,6 +52,11 @@ class _JmSettingsState extends State<JmSettings> {
           onChanged: () => JmNetwork().loginFromAppdata(),
         ),
         ListTile(
+          leading: const Icon(Icons.domain_rounded),
+          title: Text("Domain: ${appdata.settings[56].replaceFirst("https://", "")}"),
+          trailing: IconButton(onPressed: () => changeDomain(context), icon: const Icon(Icons.edit)),
+        ),
+        ListTile(
           leading: const Icon(Icons.image),
           title: Text("图片分流".tl),
           trailing: Select(
