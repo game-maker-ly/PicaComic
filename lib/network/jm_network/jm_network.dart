@@ -89,7 +89,7 @@ class JmNetwork {
     "https://www.jmfreedomproxy.xyz"
   ];
   // 56代表jm源域名配置
-  static String get baseUrl => appdata.settings[56];
+  String get baseUrl => appdata.settings[56];
 
   static const kJmSecret = '185Hcomic3PAPP7R';
 
