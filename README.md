@@ -10,6 +10,7 @@ git workflow release-action需要通过tag触发发布，否则会忽略
 # 生成密钥命令
 keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias key
 
+
 A comic app with multiple sources built with flutter.
 
 ## How to use
