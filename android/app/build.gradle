@@ -61,7 +61,7 @@ android {
         versionName flutterVersionName
         multiDexEnabled true
     }
-
+/*
     signingConfigs {
         debug {
             storeFile file(keystoreProperties['storeFile'])
@@ -93,6 +93,7 @@ android {
             }
         }
     }
+    */
     namespace 'com.kokoiro.xyz.pica_comic'
 }
 
