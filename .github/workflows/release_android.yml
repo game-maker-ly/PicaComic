@@ -1,0 +1,106 @@
+name: Build & Release(only android)
+
+# Trigger on push to master branch or with a tag
+on:
+  workflow_dispatch
+
+jobs:
+  Build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: Android
+            os: ubuntu-latest
+            artifact_name: release-Android
+            artifact_path: build/app/outputs/apk/release/*.apk
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    runs-on: ${{ matrix.os }}
+    env:
+      FLUTTER_VERSION: 3.24.3
+    steps:
+      # Checkout branch
+      - name: Checkout
+        uses: actions/checkout@v3
+      # Add Android keystore
+      - name: Setup Android keystore
+        if: matrix.target == 'Android'
+        run: |
+          echo "${{ secrets.ENCODED_KEYSTORE }}" | base64 -di > android/app/upload-keystore.jks
+          echo "${{ secrets.KEY_PROPERTIES }}" > android/key.properties
+      # Setup Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2.12.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+      # Cache Pod
+      - name: Cache Pod
+        if: matrix.cache_pod_key != null
+        uses: actions/cache@v3
+        with:
+          key: ${{ matrix.cache_pod_key }}
+          path: ${{ matrix.cache_pod_path }}
+          restore-keys: ${{ matrix.cache_key }}-${{ hashFiles(matrix.cache_pod_restore_keys_hash_file)}}
+      # Setup JDK
+      - name: Setup JDK 17 (Android)
+        if: matrix.target == 'Android'
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: gradle
+      # Flutter Pub Get
+      - name: Flutter Pub Get
+        run: |
+          git config --global core.longpaths true
+          flutter pub get
+      # Get app version
+      - name: Get app version
+        id: get_version
+        shell: bash
+        run: |
+          echo "::set-output name=version::$(head -n 5 pubspec.yaml | tail -n 1 | cut -d ' ' -f 2)"
+      # Build Android .apk
+      - name: Build Android
+        if: matrix.target == 'Android'
+        run: |
+          flutter build apk -t lib/src/main.dart --release --split-per-abi
+          cd build/app/outputs/apk/release
+          mv app-arm64-v8a-release.apk PicaComic-${{ steps.get_version.outputs.version }}-arm64-v8a.apk
+          mv app-armeabi-v7a-release.apk PicaComic-${{ steps.get_version.outputs.version }}-armeabi-v7a.apk
+          mv app-x86_64-release.apk PicaComic-${{ steps.get_version.outputs.version }}-x86_64.apk
+
+      # Upload Artifacts
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_path }}
+  Publish:
+    if: startsWith(github.ref, 'refs/tags/')
+    name: Publish
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Make tmp dir
+        run: mkdir /tmp/artifacts
+      - name: Download all Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: /tmp/artifacts
+      - name: List all Artifacts
+        run: ls -R /tmp/artifacts
+      - name: Upload to release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}
+          allowUpdates: true
+          bodyFile: changelog/${{ github.ref_name }}.md
+          artifacts: /tmp/artifacts/release-Android/*.apk
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
