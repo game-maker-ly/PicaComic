@@ -22,7 +22,7 @@ jobs:
           - target: Android
             os: ubuntu-latest
             artifact_name: release-Android
-            artifact_path: build/app/outputs/apk/release/*.apk
+            artifact_path: build/app/outputs/flutter-apk/*.apk
     outputs:
       version: ${{ steps.get_version.outputs.version }}
     runs-on: ${{ matrix.os }}
