@@ -81,14 +81,15 @@ class JmNetwork {
 
   static JmNetwork? cache;
 
+  // 这个写死加速网站实在太蠢了，不如旧版修改域名
   static const urls = <String>[
     "https://www.jmeadpoolcdn.one",
     "https://www.jmeadpoolcdn.life",
     "https://www.jmapiproxyxxx.one",
     "https://www.jmfreedomproxy.xyz"
   ];
-
-  String get baseUrl => urls[int.parse(appdata.settings[17])];
+  // 56代表jm源域名配置
+  String get baseUrl => urls[int.parse(appdata.settings[56])];
 
   static const kJmSecret = '185Hcomic3PAPP7R';
 
