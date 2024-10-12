@@ -10,6 +10,9 @@ git workflow release-action需要通过tag触发发布，否则会忽略
 # 生成密钥命令
 keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias key
 
+# 由于二进制编码密钥无法用剪切板复制，只能先编码为base64字符串
+再通过命令还原为二进制数据
+
 
 A comic app with multiple sources built with flutter.
 
