@@ -2,7 +2,16 @@ name: Build & Release(only android)
 
 # Trigger on push to master branch or with a tag
 on:
-  workflow_dispatch
+  push:
+    branches:
+      - '**'
+    tags:
+      - v*
+
+# If previous workflow is still running, we push again, we will cancel the previous workflow
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
   Build:
