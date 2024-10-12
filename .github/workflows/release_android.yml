@@ -45,12 +45,12 @@ jobs:
           path: ${{ matrix.cache_pod_path }}
           restore-keys: ${{ matrix.cache_key }}-${{ hashFiles(matrix.cache_pod_restore_keys_hash_file)}}
       # Setup JDK
-      - name: Setup JDK 17 (Android)
+      - name: Setup JDK 18 (Android)
         if: matrix.target == 'Android'
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: '17'
+          java-version: '18'
           cache: gradle
       # Flutter Pub Get
       - name: Flutter Pub Get
